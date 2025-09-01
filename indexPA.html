@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facilities Management Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: The application is designed as a task-oriented dashboard. The main screen presents key service categories as interactive cards. Clicking a card opens a full-screen modal, guiding the user through a specific task (like booking a room or submitting a request) in a step-by-step flow. This single-page, modal-driven approach was chosen to keep the user experience focused and prevent disorientation. It simplifies navigation by containing each task within its own context, making it ideal for a mobile-first, action-oriented tool. -->
+    <!-- Visualization & Content Choices: Report Info: Room reservations with locations, hours, and slot times. Goal: Allow users to book a time slot. Viz/Presentation: A multi-step modal form. Interaction: 1) Select room type, 2) Select location, 3) Select date on a dynamically generated calendar, 4) Select an available time slot. Justification: This breaks a complex task into simple, manageable steps, reducing cognitive load. Library/Method: Vanilla JS and Tailwind CSS for the modal and interactive calendar grid. This pattern is repeated for other services like ticketing and stationery requests, adapting the form fields as needed. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .modal-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transition: transform 0.3s ease-in-out;
+        }
+        .step-active { display: block; }
+        .step-inactive { display: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div id="app" class="min-h-screen flex flex-col">
+
+        <header class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <h1 class="text-2xl font-bold text-slate-900">Facilities Hub</h1>
+                    <div class="text-sm">Welcome, Employee</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow py-8 sm:py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl">How can we help you today?</h2>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-500">Select a service below to get started.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+
+                    <div class="service-card cursor-pointer group" data-modal-target="wellnessModal">
+                        <div class="card-content">
+                            <div class="card-icon bg-emerald-100 text-emerald-700">❤️‍🩹</div>
+                            <h3 class="card-title">Health & Wellness</h3>
+                            <p class="card-description">Manage gym subscriptions, book workout classes, and access therapy services.</p>
+                        </div>
+                    </div>
+
+                    <div class="service-card cursor-pointer group" data-modal-target="roomsModal">
+                        <div class="card-content">
+                            <div class="card-icon bg-sky-100 text-sky-700">🚪</div>
+                            <h3 class="card-title">Room Reservations</h3>
+                            <p class="card-description">Book Fun, Meditation, or Lactation rooms across different locations.</p>
+                        </div>
+                    </div>
+
+                    <div class="service-card cursor-pointer group" data-modal-target="requestsModal">
+                        <div class="card-content">
+                            <div class="card-icon bg-amber-100 text-amber-700">📝</div>
+                            <h3 class="card-title">Service Requests</h3>
+                            <p class="card-description">Request stationery, mailroom services, or a medical chair.</p>
+                        </div>
+                    </div>
+
+                    <div class="service-card cursor-pointer group" data-modal-target="transportModal">
+                        <div class="card-content">
+                            <div class="card-icon bg-rose-100 text-rose-700">🚌</div>
+                            <h3 class="card-title">Transport & Food</h3>
+                            <p class="card-description">Book your VodaBus trip or activate your food allowance.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="service-card cursor-pointer group" data-modal-target="ticketingModal">
+                        <div class="card-content">
+                            <div class="card-icon bg-indigo-100 text-indigo-700">🎟️</div>
+                            <h3 class="card-title">Help & Support</h3>
+                            <p class="card-description">Submit a trouble ticket for facilities, property, or H&S issues.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-white mt-auto">
+            <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-slate-500 text-sm">
+                <p>&copy; 2025 Corporate Facilities Management. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+    
+    <div id="roomsModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <div class="modal-body">
+                <div id="roomsStep1" class="modal-step step-active">
+                    <h2 class="modal-title">Book a Space</h2>
+                    <p class="modal-subtitle">Select the type of room you'd like to reserve.</p>
+                    <div class="space-y-4 mt-6">
+                        <button class="modal-option-button" data-room-type="Fun Room">🎮 Fun Room</button>
+                        <button class="modal-option-button" data-room-type="Meditation Room">🧘 Meditation Room</button>
+                        <button class="modal-option-button" data-room-type="Lactation Room">🍼 Lactation Room</button>
+                    </div>
+                </div>
+                <div id="roomsStep2" class="modal-step step-inactive">
+                    <h2 class="modal-title">Select Location</h2>
+                    <p class="modal-subtitle">Where would you like to book the <span id="roomTypeDisplay" class="font-semibold"></span>?</p>
+                    <div class="space-y-4 mt-6">
+                        <button class="modal-option-button" data-location="Dallah">📍 Dallah</button>
+                        <button class="modal-option-button" data-location="VHUB1">📍 VHUB1</button>
+                        <button class="modal-option-button" data-location="Zayyan">📍 Zayyan</button>
+                    </div>
+                </div>
+                <div id="roomsStep3" class="modal-step step-inactive">
+                    <h2 class="modal-title">Select Date & Time</h2>
+                    <p class="modal-subtitle">Booking at <span id="locationDisplay" class="font-semibold"></span>.</p>
+                    <div class="mt-6">
+                        <div id="calendar" class="w-full"></div>
+                        <div id="timeSlots" class="mt-4"></div>
+                    </div>
+                </div>
+                <div id="roomsStep4" class="modal-step step-inactive">
+                    <div class="text-center p-6">
+                        <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-4xl">✓</div>
+                        <h2 class="modal-title mt-4">Booking Confirmed!</h2>
+                        <div id="confirmationDetails" class="mt-4 text-slate-600 bg-slate-100 p-4 rounded-lg"></div>
+                        <button id="finishBookingBtn" class="modal-primary-button mt-6 w-full">Done</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="ticketingModal" class="modal-overlay">
+         <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <div class="modal-body">
+                 <div id="ticketingStep1" class="modal-step step-active">
+                    <h2 class="modal-title">Submit a Trouble Ticket</h2>
+                    <p class="modal-subtitle">Please provide details about the issue.</p>
+                    <form id="ticketForm" class="space-y-4 mt-6">
+                        <div>
+                            <label for="ticketCategory" class="block text-sm font-medium text-slate-700">Category</label>
+                            <select id="ticketCategory" class="modal-input">
+                                <option>Facilities</option>
+                                <option>Property (Civil)</option>
+                                <option>Property (Electricity)</option>
+                                <option>Property (Mechanical)</option>
+                                <option>H&S</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="ticketDescription" class="block text-sm font-medium text-slate-700">Description of Issue</label>
+                            <textarea id="ticketDescription" rows="4" class="modal-input" placeholder="e.g., The AC in meeting room 3 is not working."></textarea>
+                        </div>
+                         <button type="submit" class="modal-primary-button w-full">Submit Ticket</button>
+                    </form>
+                </div>
+                 <div id="ticketingStep2" class="modal-step step-inactive text-center p-6">
+                        <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-4xl">✓</div>
+                        <h2 class="modal-title mt-4">Ticket Submitted!</h2>
+                        <p class="mt-2 text-slate-600">Your request has been received. You will be notified of any updates.</p>
+                        <button class="modal-primary-button mt-6 w-full modal-close-button">Close</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="wellnessModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+             <div class="modal-body">
+                <div class="modal-step step-active">
+                    <h2 class="modal-title">Health & Wellness</h2>
+                    <p class="modal-subtitle">Select a service to proceed.</p>
+                    <div class="space-y-4 mt-6">
+                        <button class="modal-option-button">Request Gym Subscription</button>
+                        <button class="modal-option-button">Cancel Gym Subscription</button>
+                        <button class="modal-option-button">View Workout Calendar</button>
+                        <button class="modal-option-button">Learn about O7 Therapy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="requestsModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <div class="modal-body">
+                <div id="requestsStep1" class="modal-step step-active">
+                    <h2 class="modal-title">Service Requests</h2>
+                    <p class="modal-subtitle">What would you like to request?</p>
+                    <div class="space-y-4 mt-6">
+                        <button class="modal-option-button" data-request-type="stationery">Request Stationery</button>
+                        <button class="modal-option-button opacity-50 cursor-not-allowed" disabled>Mailroom Request <span class="text-xs font-normal">(Coming Soon)</span></button>
+                        <button class="modal-option-button opacity-50 cursor-not-allowed" disabled>Request Medical Chair <span class="text-xs font-normal">(Coming Soon)</span></button>
+                    </div>
+                </div>
+                <div id="requestsStep2" class="modal-step step-inactive">
+                    <h2 class="modal-title">Stationery Request</h2>
+                    <p class="modal-subtitle">Please fill out the form below.</p>
+                    <form id="stationeryForm" class="space-y-4 mt-6">
+                        <div>
+                            <label for="stationeryEmail" class="block text-sm font-medium text-slate-700">Requester E-mail</label>
+                            <input type="email" id="stationeryEmail" class="modal-input" required>
+                        </div>
+                         <div>
+                            <label for="stationeryLocation" class="block text-sm font-medium text-slate-700">Location</label>
+                            <select id="stationeryLocation" class="modal-input" required>
+                                <option>VHUBs</option>
+                                <option>Dallah</option>
+                                <option>Zayyan</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4">
+                           <div class="col-span-2">
+                                <label for="stationeryItem1" class="block text-sm font-medium text-slate-700">Item 1</label>
+                                <input type="text" id="stationeryItem1" class="modal-input" required>
+                           </div>
+                           <div>
+                                <label for="stationeryQty1" class="block text-sm font-medium text-slate-700">Quantity 1</label>
+                                <input type="number" id="stationeryQty1" class="modal-input" min="1" required>
+                           </div>
+                        </div>
+                         <div class="grid grid-cols-3 gap-4">
+                           <div class="col-span-2">
+                                <label for="stationeryItem2" class="block text-sm font-medium text-slate-700">Item 2 (Optional)</label>
+                                <input type="text" id="stationeryItem2" class="modal-input">
+                           </div>
+                           <div>
+                                <label for="stationeryQty2" class="block text-sm font-medium text-slate-700">Quantity 2</label>
+                                <input type="number" id="stationeryQty2" class="modal-input" min="1">
+                           </div>
+                        </div>
+                         <div class="grid grid-cols-3 gap-4">
+                           <div class="col-span-2">
+                                <label for="stationeryItem3" class="block text-sm font-medium text-slate-700">Item 3 (Optional)</label>
+                                <input type="text" id="stationeryItem3" class="modal-input">
+                           </div>
+                           <div>
+                                <label for="stationeryQty3" class="block text-sm font-medium text-slate-700">Quantity 3</label>
+                                <input type="number" id="stationeryQty3" class="modal-input" min="1">
+                           </div>
+                        </div>
+                        <button type="submit" class="modal-primary-button w-full">Submit Request</button>
+                    </form>
+                </div>
+                 <div id="requestsStep3" class="modal-step step-inactive text-center p-6">
+                    <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-4xl">✓</div>
+                    <h2 class="modal-title mt-4">Request Submitted!</h2>
+                    <p class="mt-2 text-slate-600">Your stationery request has been sent to the storekeeper for your location.</p>
+                    <button class="modal-primary-button mt-6 w-full modal-close-button">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="transportModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-button">&times;</button>
+            <div class="modal-body">
+                <div class="modal-step step-active">
+                    <h2 class="modal-title">Transport & Food</h2>
+                    <p class="modal-subtitle">Select a service below.</p>
+                    <div class="space-y-4 mt-6">
+                        <button class="modal-option-button">Book a VodaBus Trip</button>
+                        <button class="modal-option-button">Activate Food Allowance</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const serviceCards = document.querySelectorAll('.service-card');
+        const modals = document.querySelectorAll('.modal-overlay');
+        const closeButtons = document.querySelectorAll('.modal-close-button');
+
+        const appState = {
+            booking: {
+                room: null,
+                location: null,
+                date: null,
+                time: null,
+            },
+            currentModal: null,
+        };
+
+        const roomsModal = document.getElementById('roomsModal');
+        const requestsModal = document.getElementById('requestsModal');
+        
+        function openModal(modal) {
+            if (!modal) return;
+            modal.classList.add('flex');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('opacity-100');
+                modal.querySelector('.modal-content').classList.add('scale-100');
+                appState.currentModal = modal;
+            }, 10);
+        }
+
+        function closeModal(modal) {
+            if (!modal) return;
+            modal.classList.remove('opacity-100');
+            modal.querySelector('.modal-content').classList.remove('scale-100');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+                resetModalSteps(modal);
+                appState.currentModal = null;
+            }, 300);
+        }
+        
+        function resetModalSteps(modal) {
+            const steps = modal.querySelectorAll('.modal-step');
+            steps.forEach((step, index) => {
+                if (index === 0) {
+                    step.classList.add('step-active');
+                    step.classList.remove('step-inactive');
+                } else {
+                    step.classList.add('step-inactive');
+                    step.classList.remove('step-active');
+                }
+            });
+             if (modal.id === 'ticketingModal') {
+                modal.querySelector('#ticketForm').reset();
+            }
+             if (modal.id === 'requestsModal') {
+                modal.querySelector('#stationeryForm').reset();
+            }
+        }
+        
+        function goToStep(modal, stepNumber) {
+            const steps = modal.querySelectorAll('.modal-step');
+            steps.forEach(step => {
+                step.classList.remove('step-active');
+                step.classList.add('step-inactive');
+            });
+            const targetStep = modal.querySelector(`#${modal.id.replace('Modal','')}Step${stepNumber}`);
+            if(targetStep) {
+                targetStep.classList.add('step-active');
+                targetStep.classList.remove('step-inactive');
+            }
+        }
+
+        serviceCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const modalId = card.dataset.modalTarget;
+                const modal = document.getElementById(modalId);
+                openModal(modal);
+            });
+        });
+
+        closeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const modal = button.closest('.modal-overlay');
+                closeModal(modal);
+            });
+        });
+
+        modals.forEach(modal => {
+            modal.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    closeModal(modal);
+                }
+            });
+        });
+        
+        const ticketForm = document.getElementById('ticketForm');
+        if (ticketForm) {
+            ticketForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                goToStep(e.target.closest('.modal-overlay'), 2);
+            });
+        }
+
+        function handleRoomBookingFlow() {
+            const roomTypeButtons = roomsModal.querySelectorAll('#roomsStep1 button');
+            roomTypeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    appState.booking.room = button.dataset.roomType;
+                    document.getElementById('roomTypeDisplay').textContent = appState.booking.room;
+                    goToStep(roomsModal, 2);
+                });
+            });
+
+            const locationButtons = roomsModal.querySelectorAll('#roomsStep2 button');
+            locationButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    appState.booking.location = button.dataset.location;
+                    document.getElementById('locationDisplay').textContent = appState.booking.location;
+                    renderCalendar(new Date().getFullYear(), new Date().getMonth());
+                    goToStep(roomsModal, 3);
+                });
+            });
+            
+            document.getElementById('finishBookingBtn')?.addEventListener('click', () => {
+                 closeModal(roomsModal);
+            });
+        }
+        
+        function handleRequestFlow() {
+            const requestTypeButtons = requestsModal.querySelectorAll('#requestsStep1 button[data-request-type]');
+            requestTypeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const requestType = button.dataset.requestType;
+                    if (requestType === 'stationery') {
+                         goToStep(requestsModal, 2);
+                    }
+                });
+            });
+
+            const stationeryForm = document.getElementById('stationeryForm');
+            stationeryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                goToStep(requestsModal, 3);
+            });
+        }
+
+        function renderCalendar(year, month) {
+            const calendarEl = document.getElementById('calendar');
+            const timeSlotsEl = document.getElementById('timeSlots');
+            calendarEl.innerHTML = '';
+            timeSlotsEl.innerHTML = '<p class="text-slate-500">Select a date to see available times.</p>';
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            
+            const header = document.createElement('div');
+            header.className = 'flex justify-between items-center mb-4';
+            header.innerHTML = `<h4 class="text-lg font-semibold">${monthNames[month]} ${year}</h4>`;
+            calendarEl.appendChild(header);
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-7 gap-1 text-center';
+            
+            daysOfWeek.forEach(day => {
+                grid.innerHTML += `<div class="font-medium text-xs text-slate-500">${day}</div>`;
+            });
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+
+            for (let i = 0; i < firstDay; i++) {
+                grid.innerHTML += '<div></div>';
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                const isPast = date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                let classes = 'p-2 rounded-full cursor-pointer transition-colors';
+                if (isPast) {
+                    classes += ' text-slate-400 cursor-not-allowed';
+                } else {
+                    classes += ' hover:bg-sky-100';
+                }
+                const dayEl = document.createElement('div');
+                dayEl.textContent = day;
+                dayEl.className = classes;
+                if (!isPast) {
+                    dayEl.onclick = () => {
+                        appState.booking.date = `${monthNames[month]} ${day}, ${year}`;
+                        document.querySelectorAll('#calendar .bg-sky-500').forEach(el => el.classList.remove('bg-sky-500', 'text-white'));
+                        dayEl.classList.add('bg-sky-500', 'text-white');
+                        renderTimeSlots(date);
+                    };
+                }
+                grid.appendChild(dayEl);
+            }
+            calendarEl.appendChild(grid);
+        }
+
+        function renderTimeSlots(date) {
+            const timeSlotsEl = document.getElementById('timeSlots');
+            timeSlotsEl.innerHTML = '<h4 class="font-semibold mb-2">Available Slots:</h4>';
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-3 sm:grid-cols-4 gap-2';
+
+            const operatingHours = {
+                "Dallah": { start: 10, end: 17.5 },
+                "VHUB1": { start: 10, end: 22 },
+                "Zayyan": { start: 10, end: 17.5 } 
+            };
+            const hours = operatingHours[appState.booking.location] || { start: 10, end: 17.5 };
+            
+            for (let hour = hours.start; hour < hours.end; hour += 0.5) {
+                const isBooked = Math.random() > 0.7; 
+                const h = Math.floor(hour);
+                const m = (hour % 1) * 60;
+                const time = new Date(0, 0, 0, h, m).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                
+                const button = document.createElement('button');
+                button.textContent = time;
+                button.className = 'p-2 rounded-lg border transition-colors';
+                if (isBooked) {
+                    button.disabled = true;
+                    button.className += ' bg-slate-200 text-slate-400 cursor-not-allowed';
+                } else {
+                    button.className += ' bg-white hover:bg-sky-100 border-slate-300';
+                    button.onclick = () => {
+                        appState.booking.time = time;
+                        showConfirmation();
+                    }
+                }
+                grid.appendChild(button);
+            }
+            timeSlotsEl.appendChild(grid);
+        }
+        
+        function showConfirmation() {
+            const detailsEl = document.getElementById('confirmationDetails');
+            detailsEl.innerHTML = `
+                <p><strong>Room:</strong> ${appState.booking.room}</p>
+                <p><strong>Location:</strong> ${appState.booking.location}</p>
+                <p><strong>Date:</strong> ${appState.booking.date}</p>
+                <p><strong>Time:</strong> ${appState.booking.time}</p>
+            `;
+            goToStep(roomsModal, 4);
+        }
+
+        handleRoomBookingFlow();
+        handleRequestFlow();
+        
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a' },
+                    },
+                     fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            .service-card {
+                background-color: white;
+                border-radius: 0.75rem;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+                transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            }
+            .service-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            }
+            .card-content { padding: 1.5rem; }
+            .card-icon {
+                width: 3rem; height: 3rem;
+                border-radius: 0.5rem;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+            .card-title { font-size: 1.25rem; font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; }
+            .card-description { font-size: 1rem; color: #64748b; }
+            .modal-overlay {
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background-color: rgba(15, 23, 42, 0.6);
+                backdrop-filter: blur(4px);
+                display: none; align-items: center; justify-content: center;
+                z-index: 50; opacity: 0;
+            }
+            .modal-content {
+                background-color: white;
+                border-radius: 0.75rem;
+                box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+                width: 90%; max-width: 500px;
+                max-height: 90vh;
+                position: relative;
+                transform: scale(0.95);
+                overflow-y: auto;
+            }
+            .modal-body { padding: 2rem; }
+            .modal-close-button {
+                position: absolute; top: 0.75rem; right: 0.75rem;
+                width: 2rem; height: 2rem;
+                border: none; background: #e2e8f0; color: #475569;
+                border-radius: 9999px; font-size: 1.25rem;
+                display: flex; align-items: center; justify-content: center;
+                cursor: pointer;
+            }
+            .modal-title { font-size: 1.5rem; font-weight: bold; color: #0f172a; text-align: center; }
+            .modal-subtitle { font-size: 1rem; color: #64748b; text-align: center; margin-top: 0.5rem; }
+            .modal-option-button {
+                width: 100%;
+                padding: 0.75rem 1rem;
+                border: 1px solid #cbd5e1;
+                border-radius: 0.5rem;
+                background-color: white;
+                font-weight: 500;
+                text-align: left;
+                transition: background-color 0.2s, border-color 0.2s;
+                cursor: pointer;
+            }
+            .modal-option-button:hover { background-color: #f1f5f9; }
+            .modal-primary-button {
+                background-color: #1e293b; color: white;
+                padding: 0.75rem 1.5rem; border-radius: 0.5rem;
+                font-weight: 600;
+                transition: background-color 0.2s;
+            }
+            .modal-primary-button:hover { background-color: #334155; }
+            .modal-input {
+                width: 100%;
+                border: 1px solid #cbd5e1;
+                border-radius: 0.5rem;
+                padding: 0.5rem 0.75rem;
+            }
+        `;
+        document.head.appendChild(style);
+
+    });
+</script>
+
+</body>
+</html>
+
+
+
