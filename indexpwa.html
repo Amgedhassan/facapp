@@ -38,28 +38,15 @@
             background-color: #F9FAFB;
             color: #1f2937;
             display: flex; flex-direction: column;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateX(100%);
+            transition: opacity 0.3s ease-in-out;
+            opacity: 0;
             pointer-events: none;
             z-index: 1;
         }
-        .screen::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(#F3F4F6 1px, transparent 1px);
-            background-size: 1.5rem 1.5rem;
-            opacity: 0.5;
-            z-index: -1;
-        }
         .screen.active {
-            transform: translateX(0%);
+            opacity: 1;
             pointer-events: auto;
             z-index: 2;
-        }
-        .screen.previous {
-            transform: translateX(-30%);
-            z-index: 0;
         }
         
         .screen-header {
@@ -70,7 +57,7 @@
             z-index: 10;
         }
         .screen-title { font-size: 1.125rem; font-weight: 600; text-align: center; flex-grow: 1; color: #1f2937; }
-        .screen-body { flex-grow: 1; overflow-y: auto; padding: 1.5rem; }
+        .screen-body { flex-grow: 1; overflow-y: auto; padding: 1.5rem; padding-bottom: 6rem; }
         .step-content { display: none; }
         .step-content.active { display: block; animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -82,14 +69,14 @@
             width: 100%; display: flex; align-items: center; padding: 1rem; border: 1px solid #F3F4F6; border-radius: 0.75rem; font-weight: 600;
             transition: all 0.2s; background-color: #FFFFFF; box-shadow: 0 4px 12px -1px rgb(0 0 0 / 0.05); color: #1f2937;
         }
-        .option-button:active, .primary-button:active, .action-sheet-item:active { transform: scale(0.98); transition: transform 0.1s; }
+        .option-button:active, .primary-button:active, .nav-item:active, .action-sheet-item:active { transform: scale(0.98); transition: transform 0.1s; }
         
         .primary-button {
-            background-color: #DC2626;
+            background-color: #111827;
             color: white; padding: 0.875rem 1.5rem; border-radius: 0.75rem; font-weight: 600;
             width: 100%; transition: all 0.2s;
         }
-        .primary-button:hover { background-color: #B91C1C; }
+        .primary-button:hover { background-color: #000; }
         
         .form-input { 
             width: 100%; padding: 0.75rem; border: 1px solid #E5E7EB; border-radius: 0.5rem; 
@@ -107,23 +94,20 @@
         .load-in { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease-out, transform 0.5s ease-out; }
         
         .styled-card { 
-            background: linear-gradient(145deg, #ffffff, #f9fafb); 
-            border: 1px solid #FFFFFF;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.05), 0 4px 6px -2px rgb(0 0 0 / 0.05);
+            background: #FFFFFF; 
+            border: 1px solid #E5E7EB;
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.05);
             position: relative;
-        }
-        .styled-card::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: 1rem;
-            box-shadow: inset 0 1px 2px #fff;
+            overflow: hidden;
         }
         
-        .flat-icon-container { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: #9CA3AF; background-color: #F3F4F6; border-radius: 0.5rem; margin-right: 1rem; }
-        .action-sheet-item:hover .flat-icon-container { color: #DC2626; background-color: #FEE2E2; }
-        .flat-icon { width: 20px; height: 20px; position: relative; }
+        .flat-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .icon-home { border: 2px solid currentColor; border-radius: 4px; position: relative; }
+        .icon-home::after { content: ''; position: absolute; width: 8px; height: 8px; background-color: currentColor; border-radius: 1px; top: 4px; }
+        .icon-activity { position: relative; }
+        .icon-activity::before { content:''; position: absolute; width: 16px; height: 2px; background-color: currentColor; border-radius: 1px; top: 7px; }
+        .icon-activity::after { content:''; position: absolute; width: 10px; height: 2px; background-color: currentColor; border-radius: 1px; top: 13px; }
         .icon-rooms { border: 2px solid currentColor; border-radius: 4px; }
         .icon-rooms::after { content: ''; position: absolute; width: 4px; height: 8px; border: 2px solid currentColor; border-radius: 50%; right: 2px; top: 4px; }
         .icon-requests { border: 2px solid currentColor; border-radius: 4px; }
@@ -143,87 +127,114 @@
         .icon-stationery::after { width: 2px; height: 8px; top: 3px; right: 5px; }
 
 
-        .action-sheet-overlay {
-            position: absolute; inset: 0; background: rgba(10, 10, 10, 0.4);
-            z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s;
-        }
-        .action-sheet-container {
-            position: absolute; bottom: 0; left:0; right: 0;
-            background: #FFFFFF;
-            border-top-left-radius: 1.5rem;
-            border-top-right-radius: 1.5rem;
-            padding: 1rem;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
-            transform: translateY(100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 101;
-        }
-        .action-sheet-overlay.open { opacity: 1; pointer-events: auto; }
-        .action-sheet-overlay.open .action-sheet-container { transform: translateY(0); }
-        .action-sheet-item { 
-             width: 100%; display: flex; align-items: center; text-align: left; padding: 0.75rem; border-radius: 0.5rem;
-        }
-        .action-sheet-item:hover { background-color: #F3F4F6; }
-        
-        .fab {
-            position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
-            z-index: 50; width: 60px; height: 60px; border-radius: 99px;
-            background-color: #1f2937; color: white;
-            box-shadow: 0 4px 15px 0 rgba(0,0,0, 0.2);
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.3s;
-            animation: pulse-fab 2s infinite;
-        }
-        @keyframes pulse-fab {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(31, 41, 55, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(31, 41, 55, 0); }
-        }
-
         .confirmation-icon {
-            font-size: 8rem;
-            line-height: 1;
-            opacity: 0;
-            transform: scale(0.5);
+            font-size: 8rem; line-height: 1; opacity: 0; transform: scale(0.5);
             animation: zoomInFade 0.8s 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-            position: absolute;
-            top: 50%; left: 50%;
-            margin-left: -4rem;
-            margin-top: -4rem;
-            z-index: 0;
+            position: absolute; top: 50%; left: 50%; margin-left: -4rem; margin-top: -4rem; z-index: 0;
         }
-        @keyframes zoomInFade {
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
+        @keyframes zoomInFade { to { opacity: 1; transform: scale(1); } }
+
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #9CA3AF; transition: all 0.2s; padding: 0.25rem 0.5rem; flex-grow: 1; }
+        .nav-item:hover { color: #111827; }
+        .nav-item.active { color: #DC2626; } /* Red accent */
+        .nav-item.active .flat-icon { transform: scale(1.1); }
+        .nav-bar { background-color: #FFFFFF; border-top: 1px solid #E5E7EB; box-shadow: 0 -2px 10px 0 rgb(0 0 0 / 0.05); }
+        
+        .flat-icon-container { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: #9CA3AF; background-color: #F3F4F6; border-radius: 0.5rem; margin-right: 1rem; }
+        
     </style>
 </head>
 <body class="bg-gray-200 flex items-center justify-center min-h-screen p-4">
 
     <div class="w-full max-w-sm h-[90vh] max-h-[850px] bg-gray-900 rounded-3xl shadow-2xl overflow-hidden relative mobile-screen">
         
-        <div id="screen-main" class="screen active">
+        <main id="screen-main" class="screen active">
             <div class="screen-body">
-                <header class="load-in flex justify-between items-center styled-card p-4" style="transition-delay: 100ms;">
-                    <div class="flex items-center">
-                        <div class="w-12 h-12 rounded-full bg-gray-800 text-white flex items-center justify-center text-lg font-bold mr-4">AM</div>
-                        <div>
-                            <h1 class="text-xl font-extrabold text-gray-800 tracking-tighter" id="greeting"></h1>
-                            <p class="text-sm text-gray-500">Here's your daily brief.</p>
-                        </div>
+                <header class="load-in flex justify-between items-center" style="transition-delay: 100ms;">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-gray-800 tracking-tighter" id="greeting"></h1>
                     </div>
-                    <div id="weather-widget" class="text-right text-sm"></div>
+                     <div class="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center text-lg font-bold">AM</div>
                 </header>
+                <button id="location-card" data-target-screen="screen-location" class="load-in styled-card p-4 mt-6 flex justify-between items-center w-full text-left" style="transition-delay: 200ms;">
+                    <div>
+                        <p class="text-xs text-gray-500">Your Location</p>
+                        <p class="font-bold" id="current-location-display">Dallah Building, Alexandria</p>
+                    </div>
+                     <span class="text-sm font-semibold text-red-600">Change</span>
+                </button>
+
+                 <div class="mt-6">
+                    <h2 class="load-in font-bold text-gray-800 mb-3" style="transition-delay: 300ms;">Services</h2>
+                    <div class="load-in grid grid-cols-4 gap-4 text-center" style="transition-delay: 400ms;">
+                        <button data-target-screen="screen-rooms" class="flex flex-col items-center space-y-2 p-2 rounded-xl hover:bg-gray-100/50">
+                            <div class="flat-icon-container !m-0 !bg-red-50 !text-red-600"><div class="flat-icon icon-rooms"></div></div>
+                            <span class="text-xs font-medium">Rooms</span>
+                        </button>
+                         <button data-target-screen="screen-requests" class="flex flex-col items-center space-y-2 p-2 rounded-xl hover:bg-gray-100/50">
+                            <div class="flat-icon-container !m-0 !bg-red-50 !text-red-600"><div class="flat-icon icon-requests"></div></div>
+                            <span class="text-xs font-medium">Requests</span>
+                        </button>
+                         <button data-target-screen="screen-wellness" class="flex flex-col items-center space-y-2 p-2 rounded-xl hover:bg-gray-100/50">
+                            <div class="flat-icon-container !m-0 !bg-red-50 !text-red-600"><div class="flat-icon icon-wellness"></div></div>
+                            <span class="text-xs font-medium">Wellness</span>
+                        </button>
+                         <button data-target-screen="screen-transport" class="flex flex-col items-center space-y-2 p-2 rounded-xl hover:bg-gray-100/50">
+                            <div class="flat-icon-container !m-0 !bg-red-50 !text-red-600"><div class="flat-icon icon-ticket"></div></div>
+                            <span class="text-xs font-medium">Transport</span>
+                        </button>
+                    </div>
+                 </div>
 
                 <div class="mt-6 space-y-4">
-                    <div id="smart-suggestion-widget" class="load-in" style="transition-delay: 200ms;"></div>
-                    <div id="bookings-widget" class="load-in" style="transition-delay: 300ms;"></div>
-                    <div id="requests-widget" class="load-in" style="transition-delay: 400ms;"></div>
+                    <h2 class="load-in font-bold text-gray-800" style="transition-delay: 500ms;">Recent Requests</h2>
+                    <div id="requests-widget" class="load-in" style="transition-delay: 600ms;"></div>
+                     <div id="ticket-widget" class="load-in styled-card p-4 bg-gray-800 text-white" style="transition-delay: 700ms;">
+                         <button data-target-screen="screen-ticketing" class="w-full text-left flex items-center">
+                            <div class="flat-icon-container !bg-red-500/50 !text-white"><div class="flat-icon icon-ticket"></div></div>
+                            <div>
+                                <p class="font-bold">Have an issue?</p>
+                                <p class="text-xs text-gray-300">Submit a trouble ticket here</p>
+                            </div>
+                         </button>
+                    </div>
                 </div>
+            </div>
+        </main>
+
+        <div id="screen-activity" class="screen">
+            <div class="screen-header">
+                <h2 class="screen-title">My Activity</h2>
+            </div>
+            <div class="screen-body">
+                <div id="activity-log" class="space-y-4"></div>
             </div>
         </div>
 
+        <div id="screen-location" class="screen">
+            <div class="screen-header">
+                <button class="navigate-back text-2xl font-bold text-gray-400 hover:text-gray-800">←</button>
+                <h2 class="screen-title">Change Location</h2>
+                <div class="w-8"></div>
+            </div>
+            <div class="screen-body">
+                 <div class="space-y-4 mt-8" id="location-options">
+                    <button class="option-button" data-location="Dallah Building, Alexandria">
+                        Dallah Building, Alexandria
+                        <span class="ml-auto"></span>
+                    </button>
+                    <button class="option-button" data-location="V-Hub 2, Smart Village">
+                        V-Hub 2, Smart Village
+                        <span class="ml-auto"></span>
+                    </button>
+                    <button class="option-button" data-location="Zayyan, Giza">
+                        Zayyan, Giza
+                        <span class="ml-auto"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
         <!-- All other screens are structured similarly -->
         <div id="screen-rooms" class="screen">
             <div class="screen-header">
@@ -271,6 +282,21 @@
             </div>
         </div>
 
+        <nav id="bottom-navbar" class="absolute bottom-4 left-1/2 -translate-x-1/2 nav-bar z-20">
+            <button data-target-screen="screen-main" class="nav-item active">
+                <div class="flat-icon icon-home"></div>
+                <span class="nav-text">Home</span>
+            </button>
+            <button data-target-screen="screen-activity" class="nav-item">
+                <div class="flat-icon icon-activity"></div>
+                 <span class="nav-text">Activity</span>
+            </button>
+        </nav>
+
+        <button id="fab" class="absolute bottom-4 right-4 z-20 w-14 h-14 rounded-2xl bg-gray-800 text-white shadow-lg flex items-center justify-center transition-transform active:scale-95">
+             <span class="text-3xl font-thin">+</span>
+        </button>
+
         <div id="action-sheet-overlay" class="action-sheet-overlay">
             <div class="action-sheet-container">
                  <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-4"></div>
@@ -287,17 +313,9 @@
                         <div class="flat-icon-container"><div class="flat-icon icon-wellness"></div></div>
                         <span class="text-lg font-semibold">Wellness</span>
                     </button>
-                    <button data-target-screen="screen-ticketing" class="action-sheet-item">
-                        <div class="flat-icon-container"><div class="flat-icon icon-ticket"></div></div>
-                        <span class="text-lg font-semibold">Submit Ticket</span>
-                    </button>
                 </div>
             </div>
         </div>
-        
-        <button id="fab" class="fab">
-            <span class="text-white text-2xl font-thin">+</span>
-        </button>
     </div>
 
     <script>
@@ -305,48 +323,66 @@
         const appState = {
             booking: { room: null, location: null, date: null, time: null },
             history: ['screen-main'],
+            currentLocation: "Dallah Building, Alexandria"
         };
+
+        function updateNavActiveState(activeScreenId) {
+            const navItems = document.querySelectorAll('.nav-item');
+            let tabId = 'screen-main';
+            
+            const screenToTabMap = {
+                'screen-main': 'screen-main',
+                'screen-rooms': 'screen-main',
+                'screen-requests': 'screen-main',
+                'screen-wellness': 'screen-main',
+                'screen-ticketing': 'screen-main',
+                'screen-transport': 'screen-main',
+                'screen-location': 'screen-main',
+                'screen-activity': 'screen-activity',
+            };
+            tabId = screenToTabMap[activeScreenId] || 'screen-main';
+
+            navItems.forEach(item => {
+                if (item.dataset.targetScreen === tabId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
         
-        function navigateTo(screenId, isBack = false) {
+        function navigateTo(screenId, isBack = false, isTabNav = false) {
+            const allScreens = document.querySelectorAll('.screen');
             const currentScreen = document.querySelector('.screen.active');
             const targetScreen = document.getElementById(screenId);
             if (!targetScreen) return;
-            
-            if (!isBack) {
+
+            if (isTabNav) {
+                appState.history = [screenId];
+            } else if (!isBack) {
                 appState.history.push(screenId);
             }
             
-            if(currentScreen && currentScreen.id !== screenId) {
-                 currentScreen.classList.add('previous');
-                 currentScreen.classList.remove('active');
-            }
-           
+            allScreens.forEach(s => s.classList.remove('active'));
             targetScreen.classList.add('active');
-            targetScreen.classList.remove('previous');
+
+            updateNavActiveState(screenId);
         }
 
         function navigateBack() {
-            if (appState.history.length <= 1) return; 
+            if (appState.history.length <= 1) {
+                navigateTo('screen-main', false, true);
+                return;
+            }; 
 
-            const currentScreenId = appState.history.pop();
+            appState.history.pop();
             const prevScreenId = appState.history[appState.history.length - 1];
             
-            const currentScreen = document.getElementById(currentScreenId);
-            const prevScreen = document.getElementById(prevScreenId);
+            const allScreens = document.querySelectorAll('.screen');
+            allScreens.forEach(s => s.classList.remove('active'));
+            document.getElementById(prevScreenId).classList.add('active');
             
-            if(currentScreen) currentScreen.classList.remove('active');
-            if(prevScreen) {
-                prevScreen.classList.add('active');
-                prevScreen.classList.remove('previous');
-            }
-            
-            const steps = currentScreen.querySelectorAll('.step-content');
-            if (steps.length > 0) {
-                 setTimeout(() => {
-                    steps.forEach(s => s.classList.remove('active'));
-                    steps[0].classList.add('active');
-                 }, 400); 
-            }
+            updateNavActiveState(prevScreenId);
         }
         
         function goToStep(screenElement, stepNumber) {
@@ -379,19 +415,26 @@
             });
         }
         
+        document.querySelectorAll('.nav-item').forEach(element => {
+            element.addEventListener('click', () => navigateTo(element.dataset.targetScreen, false, true));
+        });
+        document.querySelectorAll('[data-target-screen]:not(.nav-item)').forEach(element => {
+            element.addEventListener('click', () => navigateTo(element.dataset.targetScreen));
+        });
+        
         document.querySelectorAll('.navigate-back').forEach(btn => btn.addEventListener('click', navigateBack));
         document.querySelectorAll('.navigate-home').forEach(btn => {
             btn.addEventListener('click', () => {
-                const screen = btn.closest('.screen');
-                appState.history = ['screen-main'];
-                navigateTo('screen-main');
-                const steps = screen.querySelectorAll('.step-content');
-                if (steps.length > 0) {
-                     setTimeout(() => {
-                        steps.forEach(s => s.classList.remove('active'));
-                        steps[0].classList.add('active');
-                     }, 400);
-                }
+                navigateTo('screen-main', false, true);
+                 document.querySelectorAll('.screen').forEach(s => {
+                    if(s.id !== 'screen-main') {
+                         const steps = s.querySelectorAll('.step-content');
+                         if (steps.length > 0) {
+                            steps.forEach(step => step.classList.remove('active'));
+                            steps[0].classList.add('active');
+                         }
+                    }
+                });
             });
         });
         
@@ -431,15 +474,13 @@
             screen.querySelector('#mailroomForm')?.addEventListener('submit', e => { e.preventDefault(); goToStep(screen, 5); });
         }
         function handleTicketingFlow() {
-            document.querySelector('.action-sheet-item[data-target-screen="screen-ticketing"]')?.addEventListener('click', () => navigateTo('screen-ticketing'));
-            
             const screen = document.getElementById('screen-ticketing');
             const cats = {"Facilities": ["Housekeeping", "Business support", "Caterers", "GYM"],"Property (Civil)": ["Plumbing", "Painting", "Carpentry"],"Property (Electricity)": ["Lighting", "Power", "Power socket"],"Property (Mechanical)": ["AC", "Firefighting"],"H&S": ["Hazard"]};
             const catEl = document.getElementById('ticketCategory');
             const subCatEl = document.getElementById('ticketSubCategory');
             function updateSubCats() { subCatEl.innerHTML = cats[catEl.value].map(s => `<option>${s}</option>`).join(''); }
             catEl.addEventListener('change', updateSubCats);
-            updateSubCats();
+            if (catEl.value) updateSubCats();
             screen.querySelector('#ticketForm')?.addEventListener('submit', e => { e.preventDefault(); goToStep(screen, 2); });
         }
        
@@ -491,17 +532,20 @@
         
         function initWeatherWidget() {
             const weatherWidget = document.getElementById('weather-widget');
-            weatherWidget.innerHTML = `
-                <div class="font-bold text-lg text-gray-800">28°C ☀️</div>
-                <div class="text-xs text-gray-500">Alexandria</div>
-            `;
+            if (weatherWidget) {
+                weatherWidget.innerHTML = `
+                    <div class="font-bold text-lg text-white">28°C</div>
+                    <div class="text-xs text-white/80">Alexandria</div>
+                `;
+            }
         }
 
         function initDynamicHub() {
             const hour = new Date().getHours();
             const suggestionWidget = document.getElementById('smart-suggestion-widget');
-            const bookingsWidget = document.getElementById('bookings-widget');
             const requestsWidget = document.getElementById('requests-widget');
+
+            if (!suggestionWidget || !requestsWidget) return;
 
             let suggestionHTML = '';
              if (hour >= 14 && hour < 15) { 
@@ -510,31 +554,16 @@
                         <p class="font-bold text-red-800">💡 Smart Suggestion</p>
                         <p class="text-sm text-red-700/80 mt-1">Your **Meditation Room** booking is in 23 minutes at Dallah. <a href="#" class="font-bold text-gray-800">Get Directions</a></p>
                     </div>`;
-            }
+             }
             suggestionWidget.innerHTML = suggestionHTML;
             
-            bookingsWidget.innerHTML = `
-                <div class="styled-card p-4">
-                    <h2 class="font-bold text-gray-800 mb-2 flex items-center">
-                        <div class="flat-icon-container mr-3 !bg-red-50 !text-red-600"><div class="flat-icon icon-calendar"></div></div>
-                        My Upcoming Bookings
-                    </h2>
-                    <div class="text-left text-sm text-gray-700 mt-3 pl-12">
-                        <p>**Meditation Room** at Dallah</p>
-                        <p class="text-gray-500">Today at 2:30 PM</p>
-                    </div>
-                </div>`;
-
             requestsWidget.innerHTML = `
                 <div class="styled-card p-4">
-                    <div class="flex justify-between items-center">
-                         <h2 class="font-bold text-gray-800 flex items-center">
-                            <div class="flat-icon-container mr-3 !bg-red-50 !text-red-600"><div class="flat-icon icon-stationery"></div></div>
-                            My Recent Requests
-                        </h2>
-                        <button id="reorderBtn" class="text-xs bg-gray-800 text-white font-semibold px-2 py-1 rounded-md hover:bg-gray-900 transition-all active:scale-95">Re-order Last</button>
-                    </div>
-                    <div class="mt-3 pl-12">
+                    <h2 class="font-bold text-gray-800 mb-2 flex items-center">
+                        <div class="flat-icon-container mr-3 !bg-red-50 !text-red-600"><div class="flat-icon icon-stationery"></div></div>
+                        My Recent Requests
+                    </h2>
+                     <div class="mt-3">
                          <p class="text-sm font-semibold text-gray-700">Stationery Request</p>
                          <div class="mt-2">
                              <div class="flex justify-between">
@@ -547,14 +576,63 @@
                          </div>
                     </div>
                 </div>`;
-            
-            document.getElementById('reorderBtn')?.addEventListener('click', (e) => {
-                const btn = e.target;
-                btn.textContent = "Ordered! ✅";
-                setTimeout(() => { btn.textContent = "Re-order Last"; }, 2000);
-            });
         }
         
+        function initActivityLog() {
+            const logContainer = document.getElementById('activity-log');
+            if (!logContainer) return;
+            logContainer.innerHTML = `
+                <div class="styled-card p-4">
+                    <div class="flex items-center">
+                        <div class="flat-icon-container mr-3 !bg-red-50 !text-red-600"><div class="flat-icon icon-calendar"></div></div>
+                        <div>
+                            <p class="font-semibold">Meditation Room Booking</p>
+                            <p class="text-sm text-gray-500">Today at 2:30 PM</p>
+                        </div>
+                        <span class="ml-auto text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full">Confirmed</span>
+                    </div>
+                </div>
+                <div class="styled-card p-4">
+                    <div class="flex items-center">
+                        <div class="flat-icon-container mr-3 !bg-red-50 !text-red-600"><div class="flat-icon icon-stationery"></div></div>
+                        <div>
+                            <p class="font-semibold">Stationery Request</p>
+                            <p class="text-sm text-gray-500">Yesterday</p>
+                        </div>
+                        <span class="ml-auto text-xs font-medium text-gray-600 bg-gray-200 px-2 py-1 rounded-full">Completed</span>
+                    </div>
+                </div>
+            `;
+        }
+
+         function handleLocationChange() {
+            const locationOptions = document.getElementById('location-options');
+            const currentLocationDisplay = document.getElementById('current-location-display');
+            
+            function updateSelection() {
+                locationOptions.querySelectorAll('button').forEach(btn => {
+                    if (btn.dataset.location === appState.currentLocation) {
+                        btn.querySelector('span').textContent = '✓';
+                        btn.classList.add('!border-red-500', 'ring-2', 'ring-red-200');
+                    } else {
+                        btn.querySelector('span').textContent = '';
+                        btn.classList.remove('!border-red-500', 'ring-2', 'ring-red-200');
+                    }
+                });
+                currentLocationDisplay.textContent = appState.currentLocation;
+            }
+
+            locationOptions.addEventListener('click', (e) => {
+                const button = e.target.closest('button');
+                if (button && button.dataset.location) {
+                    appState.currentLocation = button.dataset.location;
+                    updateSelection();
+                    setTimeout(navigateBack, 300);
+                }
+            });
+            updateSelection();
+        }
+
         function initAnimations() {
             const elements = document.querySelectorAll('.load-in');
              setTimeout(() => {
@@ -568,12 +646,14 @@
         setGreeting();
         initWeatherWidget();
         initDynamicHub();
+        initActivityLog();
         handleRoomBookingFlow();
         handleWellnessFlow();
         handleRequestFlow();
         handleTicketingFlow();
         initAnimations();
         initActionSheet();
+        handleLocationChange();
     });
     </script>
 </body>
